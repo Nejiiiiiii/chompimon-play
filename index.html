@@ -92,7 +92,54 @@ body {
 		</style>
 		<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
 <link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
-
+<!-- Chompimon web page extras (export_presets.cfg html/head_include is set from
+     this file by tools/web/apply_head_include.py). On phones: a FULL SCREEN
+     button, and a "turn your phone sideways" screen while it's held upright.
+     at01.ttf is copied next to index.html when the web version is published. -->
+<style>
+@font-face { font-family: at01; src: url("at01.ttf"); }
+#cm-fs { position: fixed; left: 10px; bottom: 10px; z-index: 10; display: none;
+  font: 16px at01, monospace; color: #1f2d3d; background: #f6efe0; border: 2px solid #1f2d3d;
+  border-radius: 6px; padding: 6px 10px; opacity: 0.9; }
+#cm-rot { position: fixed; inset: 0; z-index: 20; display: none; background: #1f2d3d; color: #f6efe0;
+  font: 32px at01, monospace; text-align: center; flex-direction: column; align-items: center;
+  justify-content: center; gap: 18px; padding: 24px; }
+#cm-rot small { font-size: 16px; opacity: 0.8; }
+#cm-rot button { font: 16px at01, monospace; color: #1f2d3d; background: #f6efe0; border: 2px solid #f6efe0;
+  border-radius: 6px; padding: 8px 14px; }
+@media (pointer: coarse) and (orientation: portrait) { #cm-rot { display: flex; } }
+</style>
+<script>
+addEventListener("DOMContentLoaded", () => {
+  const touch = matchMedia("(pointer: coarse)").matches;
+  const can = !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
+  const el = document.documentElement;
+  const go = () => {
+    const req = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (!req) return;
+    Promise.resolve(req.call(el)).then(() => {
+      try { screen.orientation.lock("landscape").catch(() => {}); } catch (e) {}
+    }).catch(() => {});
+  };
+  const b = document.createElement("button");
+  b.id = "cm-fs"; b.textContent = "FULL SCREEN"; b.onclick = go;
+  document.body.appendChild(b);
+  const r = document.createElement("div");
+  r.id = "cm-rot";
+  r.innerHTML = "<div>TURN YOUR PHONE SIDEWAYS</div><small>Chompimon plays in landscape.</small>" +
+    (can ? "<button id='cm-fs2'>FULL SCREEN</button>" : "");
+  document.body.appendChild(r);
+  const b2 = document.getElementById("cm-fs2");
+  if (b2) b2.onclick = go;
+  const update = () => {
+    const full = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    b.style.display = (touch && can && !full) ? "block" : "none";
+  };
+  document.addEventListener("fullscreenchange", update);
+  document.addEventListener("webkitfullscreenchange", update);
+  update();
+});
+</script>
 	</head>
 	<body>
 		<canvas id="canvas">
@@ -111,7 +158,7 @@ body {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"fileSizes":{"index.pck":45826564,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"fileSizes":{"index.pck":45829628,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
