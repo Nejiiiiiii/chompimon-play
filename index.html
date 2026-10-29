@@ -110,6 +110,8 @@ body {
 @media (pointer: coarse) and (orientation: portrait) { #cm-rot { display: flex; } }
 </style>
 <script>
+// a password-reset link that landed on the game page: send it to the reset page
+if (/(type=recovery|error_code=)/.test(location.hash)) location.replace("reset.html" + location.hash);
 addEventListener("DOMContentLoaded", () => {
   const touch = matchMedia("(pointer: coarse)").matches;
   const can = !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
