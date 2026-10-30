@@ -124,7 +124,7 @@ body {
 // AND no heartbeat for a few seconds after it (a real crash) does.
 (() => {
   let lastBeat = 0, started = false, shown = "", suspect = 0, lastErr = "";
-  const BUILD = "e6d96a8c61";
+  const BUILD = "b843c33152";
   window.cmBeat = () => { lastBeat = Date.now(); started = true; if (shown === "slow" || shown === "dead") hide(); };
   const box = () => {
     let b = document.getElementById("cm-help");
@@ -210,7 +210,7 @@ addEventListener("DOMContentLoaded", () => {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"mainPack":"index.e6d96a8c61.pck","fileSizes":{"index.e6d96a8c61.pck":35291152,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"mainPack":"index.b843c33152.pck","fileSizes":{"index.b843c33152.pck":35293824,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
