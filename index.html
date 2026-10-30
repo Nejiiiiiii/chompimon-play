@@ -111,6 +111,8 @@ body {
 #cm-help { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 30; display: none;
   font: 16px at01, monospace; color: #1f2d3d; background: #f6efe0; border: 2px solid #1f2d3d; border-radius: 8px;
   padding: 10px 14px; text-align: center; max-width: 90vw; box-shadow: 0 4px 0 rgba(0,0,0,0.35); }
+#cm-help small { display: block; font: 12px monospace; color: #6b6b6b; margin-top: 6px; max-width: 80vw;
+  overflow-wrap: anywhere; text-align: left; }
 #cm-help button { font: 16px at01, monospace; color: #fffaf1; background: #ee6b5b; border: 2px solid #9c3a2e;
   border-radius: 6px; padding: 6px 14px; margin-left: 10px; }
 </style>
@@ -121,22 +123,26 @@ body {
 // the proof: an error message alone never shows "stopped" - only an error
 // AND no heartbeat for a few seconds after it (a real crash) does.
 (() => {
-  let lastBeat = 0, started = false, shown = "", suspect = 0;
+  let lastBeat = 0, started = false, shown = "", suspect = 0, lastErr = "";
+  const BUILD = "51edcc153e";
   window.cmBeat = () => { lastBeat = Date.now(); started = true; if (shown === "slow" || shown === "dead") hide(); };
   const box = () => {
     let b = document.getElementById("cm-help");
     if (!b) {
       b = document.createElement("div"); b.id = "cm-help";
-      b.innerHTML = "<span></span><button>RELOAD</button>";
+      b.innerHTML = "<span></span><button>RELOAD</button><small></small>";
       b.querySelector("button").onclick = () => location.reload();
       document.body.appendChild(b);
     }
     return b;
   };
-  const show = (kind, text) => { shown = kind; const b = box(); b.querySelector("span").textContent = text; b.style.display = "block"; };
+  // what went wrong, the browser and the build: shown small under the message, for a screenshot
+  const details = () => (lastErr ? lastErr.slice(0, 220) + " | " : "") + navigator.userAgent.replace(/^Mozilla\/5\.0 /, "").slice(0, 120) + " | build " + BUILD;
+  const show = (kind, text) => { shown = kind; const b = box(); b.querySelector("span").textContent = text;
+    b.querySelector("small").textContent = kind === "slow" ? "" : details(); b.style.display = "block"; };
   const hide = () => { shown = ""; suspect = 0; const b = document.getElementById("cm-help"); if (b) b.style.display = "none"; };
   const fatal = /Aborted\(|out of memory|RuntimeError|unreachable executed/;
-  const note = (msg) => { if (started && fatal.test(String(msg))) suspect = Date.now(); };
+  const note = (msg) => { const m = String(msg); if (fatal.test(m)) { lastErr = m; if (started) suspect = Date.now(); } };
   addEventListener("error", (e) => note(e.message));
   addEventListener("unhandledrejection", (e) => note(e.reason));
   const err = console.error.bind(console);
@@ -146,9 +152,10 @@ body {
     if (cv) cv.addEventListener("webglcontextlost", () => show("gpu", "The graphics stopped on this device."), false);
   });
   setInterval(() => {
+    if (!started && lastErr && !shown && !document.getElementById("status")) { show("dead", "Chompimon stopped while starting."); return; }
     if (!started || document.hidden || shown === "gpu") return;
     const quiet = Date.now() - lastBeat;
-    if (suspect && quiet > 6000 && lastBeat < suspect + 1500) show("dead", "Chompimon stopped (your device may be low on memory).");
+    if (suspect && quiet > 6000 && lastBeat < suspect + 1500) show("dead", "Chompimon stopped.");
     else if (quiet > 25000 && shown === "") show("slow", "Still working... if it stays stuck, reload.");
   }, 2000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) lastBeat = Date.now(); });
@@ -203,7 +210,7 @@ addEventListener("DOMContentLoaded", () => {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"fileSizes":{"index.pck":29079052,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"mainPack":"index.51edcc153e.pck","fileSizes":{"index.51edcc153e.pck":29079052,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
