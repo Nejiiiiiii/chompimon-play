@@ -117,11 +117,12 @@ body {
 <script>
 // If the game stops or freezes (out of memory on a phone, the graphics reset,
 // a crash), say so with a RELOAD button instead of leaving a blank screen.
-// The game calls cmBeat() every second (screen_mode.gd); no beat for a while
-// while the page is visible means it's stuck.
+// The game calls cmBeat() every second (screen_mode.gd). The heartbeat is
+// the proof: an error message alone never shows "stopped" - only an error
+// AND no heartbeat for a few seconds after it (a real crash) does.
 (() => {
-  let lastBeat = 0, started = false, shown = "";
-  window.cmBeat = () => { lastBeat = Date.now(); started = true; if (shown === "slow") hide(); };
+  let lastBeat = 0, started = false, shown = "", suspect = 0;
+  window.cmBeat = () => { lastBeat = Date.now(); started = true; if (shown === "slow" || shown === "dead") hide(); };
   const box = () => {
     let b = document.getElementById("cm-help");
     if (!b) {
@@ -132,20 +133,23 @@ body {
     }
     return b;
   };
-  const show = (kind, text) => { if (shown === "dead") return; shown = kind; const b = box(); b.querySelector("span").textContent = text; b.style.display = "block"; };
-  const hide = () => { shown = ""; const b = document.getElementById("cm-help"); if (b) b.style.display = "none"; };
-  const dead = () => show("dead", "Chompimon stopped (your device may be low on memory).");
-  addEventListener("error", (e) => { if (started && /abort|RuntimeError|memory|unreachable/i.test(String(e.message))) dead(); });
-  addEventListener("unhandledrejection", (e) => { if (started && /abort|RuntimeError|memory/i.test(String(e.reason))) dead(); });
+  const show = (kind, text) => { shown = kind; const b = box(); b.querySelector("span").textContent = text; b.style.display = "block"; };
+  const hide = () => { shown = ""; suspect = 0; const b = document.getElementById("cm-help"); if (b) b.style.display = "none"; };
+  const fatal = /Aborted\(|out of memory|RuntimeError|unreachable executed/;
+  const note = (msg) => { if (started && fatal.test(String(msg))) suspect = Date.now(); };
+  addEventListener("error", (e) => note(e.message));
+  addEventListener("unhandledrejection", (e) => note(e.reason));
   const err = console.error.bind(console);
-  console.error = (...a) => { err(...a); if (started && /Aborted\(|out of memory|OOM/i.test(a.join(" "))) dead(); };
+  console.error = (...a) => { err(...a); note(a.join(" ")); };
   addEventListener("DOMContentLoaded", () => {
     const cv = document.getElementById("canvas");
-    if (cv) cv.addEventListener("webglcontextlost", () => show("dead", "The graphics stopped on this device."), false);
+    if (cv) cv.addEventListener("webglcontextlost", () => show("gpu", "The graphics stopped on this device."), false);
   });
   setInterval(() => {
-    if (!started || document.hidden || shown === "dead") return;
-    if (Date.now() - lastBeat > 25000) show("slow", "Still working... if it stays stuck, reload.");
+    if (!started || document.hidden || shown === "gpu") return;
+    const quiet = Date.now() - lastBeat;
+    if (suspect && quiet > 6000 && lastBeat < suspect + 1500) show("dead", "Chompimon stopped (your device may be low on memory).");
+    else if (quiet > 25000 && shown === "") show("slow", "Still working... if it stays stuck, reload.");
   }, 2000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) lastBeat = Date.now(); });
 })();
