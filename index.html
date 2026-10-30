@@ -108,8 +108,47 @@ body {
 #cm-rot button { font: 16px at01, monospace; color: #1f2d3d; background: #f6efe0; border: 2px solid #f6efe0;
   border-radius: 6px; padding: 8px 14px; }
 @media (pointer: coarse) and (orientation: portrait) { #cm-rot { display: flex; } }
+#cm-help { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 30; display: none;
+  font: 16px at01, monospace; color: #1f2d3d; background: #f6efe0; border: 2px solid #1f2d3d; border-radius: 8px;
+  padding: 10px 14px; text-align: center; max-width: 90vw; box-shadow: 0 4px 0 rgba(0,0,0,0.35); }
+#cm-help button { font: 16px at01, monospace; color: #fffaf1; background: #ee6b5b; border: 2px solid #9c3a2e;
+  border-radius: 6px; padding: 6px 14px; margin-left: 10px; }
 </style>
 <script>
+// If the game stops or freezes (out of memory on a phone, the graphics reset,
+// a crash), say so with a RELOAD button instead of leaving a blank screen.
+// The game calls cmBeat() every second (screen_mode.gd); no beat for a while
+// while the page is visible means it's stuck.
+(() => {
+  let lastBeat = 0, started = false, shown = "";
+  window.cmBeat = () => { lastBeat = Date.now(); started = true; if (shown === "slow") hide(); };
+  const box = () => {
+    let b = document.getElementById("cm-help");
+    if (!b) {
+      b = document.createElement("div"); b.id = "cm-help";
+      b.innerHTML = "<span></span><button>RELOAD</button>";
+      b.querySelector("button").onclick = () => location.reload();
+      document.body.appendChild(b);
+    }
+    return b;
+  };
+  const show = (kind, text) => { if (shown === "dead") return; shown = kind; const b = box(); b.querySelector("span").textContent = text; b.style.display = "block"; };
+  const hide = () => { shown = ""; const b = document.getElementById("cm-help"); if (b) b.style.display = "none"; };
+  const dead = () => show("dead", "Chompimon stopped (your device may be low on memory).");
+  addEventListener("error", (e) => { if (started && /abort|RuntimeError|memory|unreachable/i.test(String(e.message))) dead(); });
+  addEventListener("unhandledrejection", (e) => { if (started && /abort|RuntimeError|memory/i.test(String(e.reason))) dead(); });
+  const err = console.error.bind(console);
+  console.error = (...a) => { err(...a); if (started && /Aborted\(|out of memory|OOM/i.test(a.join(" "))) dead(); };
+  addEventListener("DOMContentLoaded", () => {
+    const cv = document.getElementById("canvas");
+    if (cv) cv.addEventListener("webglcontextlost", () => show("dead", "The graphics stopped on this device."), false);
+  });
+  setInterval(() => {
+    if (!started || document.hidden || shown === "dead") return;
+    if (Date.now() - lastBeat > 25000) show("slow", "Still working... if it stays stuck, reload.");
+  }, 2000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) lastBeat = Date.now(); });
+})();
 // a password-reset link that landed on the game page: send it to the reset page
 if (/(type=recovery|error_code=)/.test(location.hash)) location.replace("reset.html" + location.hash);
 addEventListener("DOMContentLoaded", () => {
@@ -160,7 +199,7 @@ addEventListener("DOMContentLoaded", () => {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"fileSizes":{"index.pck":58033584,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"fileSizes":{"index.pck":29078540,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
