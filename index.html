@@ -94,7 +94,9 @@ body {
 <link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
 <!-- Chompimon web page extras (export_presets.cfg html/head_include is set from
      this file by tools/web/apply_head_include.py). On phones: a FULL SCREEN
-     button, and a "turn your phone sideways" screen while it's held upright.
+     button, and a "turn your phone sideways" screen while it's held upright
+     IN THE CITY only (sign-in and the Journal hub are played upright: the game
+     says which with window.cmMode, see scripts/screen_mode.gd).
      at01.ttf is copied next to index.html when the web version is published. -->
 <style>
 @font-face { font-family: at01; src: url("at01.ttf"); }
@@ -107,7 +109,7 @@ body {
 #cm-rot small { font-size: 16px; opacity: 0.8; }
 #cm-rot button { font: 16px at01, monospace; color: #1f2d3d; background: #f6efe0; border: 2px solid #f6efe0;
   border-radius: 6px; padding: 8px 14px; }
-@media (pointer: coarse) and (orientation: portrait) { #cm-rot { display: flex; } }
+@media (pointer: coarse) and (orientation: portrait) { body.cm-wide #cm-rot { display: flex; } }
 #cm-help { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 30; display: none;
   font: 16px at01, monospace; color: #1f2d3d; background: #f6efe0; border: 2px solid #1f2d3d; border-radius: 8px;
   padding: 10px 14px; text-align: center; max-width: 90vw; box-shadow: 0 4px 0 rgba(0,0,0,0.35); }
@@ -169,20 +171,29 @@ addEventListener("DOMContentLoaded", () => {
   const go = () => {
     const req = el.requestFullscreen || el.webkitRequestFullscreen;
     if (!req) return;
-    Promise.resolve(req.call(el)).then(() => {
-      try { screen.orientation.lock("landscape").catch(() => {}); } catch (e) {}
-    }).catch(() => {});
+    Promise.resolve(req.call(el)).then(lock).catch(() => {});
+  };
+  // the game's screen: "portrait" (sign-in, the Journal hub) or "landscape" (the city)
+  let mode = "portrait";
+  const lock = () => {
+    try { screen.orientation.lock(mode).catch(() => {}); } catch (e) {}
+  };
+  window.cmMode = (m) => {
+    mode = m === "landscape" ? "landscape" : "portrait";
+    document.body.classList.toggle("cm-wide", mode === "landscape");
+    if (document.fullscreenElement || document.webkitFullscreenElement) lock();
   };
   const b = document.createElement("button");
   b.id = "cm-fs"; b.textContent = "FULL SCREEN"; b.onclick = go;
   document.body.appendChild(b);
   const r = document.createElement("div");
   r.id = "cm-rot";
-  r.innerHTML = "<div>TURN YOUR PHONE SIDEWAYS</div><small>Chompimon plays in landscape.</small>" +
-    (can ? "<button id='cm-fs2'>FULL SCREEN</button>" : "");
+  r.innerHTML = "<div>TURN YOUR PHONE SIDEWAYS</div><small>The city plays in landscape.</small>" +
+    (can ? "<button id='cm-fs2'>FULL SCREEN</button>" : "") + "<button id='cm-hub'>BACK TO JOURNAL</button>";
   document.body.appendChild(r);
   const b2 = document.getElementById("cm-fs2");
   if (b2) b2.onclick = go;
+  document.getElementById("cm-hub").onclick = () => { if (window.cmToHub) window.cmToHub(); };
   const update = () => {
     const full = !!(document.fullscreenElement || document.webkitFullscreenElement);
     b.style.display = (touch && can && !full) ? "block" : "none";
@@ -210,7 +221,7 @@ addEventListener("DOMContentLoaded", () => {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"mainPack":"index.adb1ed392b.pck","fileSizes":{"index.adb1ed392b.pck":45359428,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"mainPack":"index.c3355b29b9.pck","fileSizes":{"index.c3355b29b9.pck":45391052,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
