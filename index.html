@@ -98,7 +98,7 @@ body {
      IN THE CITY only (sign-in and the Journal hub are played upright: the game
      says which with window.cmMode, see scripts/screen_mode.gd).
      at01.ttf is copied next to index.html when the web version is published. -->
-<!-- cm-data {"build":1794562290,"file":"index.d9580892ff.pck","size":46710788,"sha256":"d9580892ffa00a9d959eff69f12e907287a3f71c8c31577304699c4f04ee9f20","min_shell":1} -->
+<!-- cm-data {"build":1794564693,"file":"index.f4f80a8c4f.pck","size":46716832,"sha256":"f4f80a8c4ff293bf7c09d5da5ed67b606795fde03e9d13e3fd65d82bf31297ca","min_shell":1} -->
 <style>
 @font-face { font-family: at01; src: url("at01.ttf"); }
 #cm-fs { position: fixed; left: 10px; bottom: 10px; z-index: 10; display: none;
@@ -145,7 +145,7 @@ body.cm-loading #cm-fs { display: none !important; }   /* (it would sit on the b
 // AND no heartbeat for a few seconds after it (a real crash) does.
 (() => {
   let lastBeat = 0, started = false, shown = "", suspect = 0, lastErr = "";
-  const BUILD = "d9580892ff";
+  const BUILD = "f4f80a8c4f";
   window.cmBeat = () => { lastBeat = Date.now(); started = true; if (shown === "slow" || shown === "dead") hide(); };
   const box = () => {
     let b = document.getElementById("cm-help");
@@ -299,7 +299,7 @@ addEventListener("DOMContentLoaded", () => {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"mainPack":"index.d9580892ff.pck","fileSizes":{"index.d9580892ff.pck":46710788,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"mainPack":"index.f4f80a8c4f.pck","fileSizes":{"index.f4f80a8c4f.pck":46716832,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
