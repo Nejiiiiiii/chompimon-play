@@ -118,16 +118,16 @@ body {
 #cm-help button { font: 16px at01, monospace; color: #fffaf1; background: #ee6b5b; border: 2px solid #9c3a2e;
   border-radius: 6px; padding: 6px 14px; margin-left: 10px; }
 /* The page's own loading screen (while the game downloads): laid out like the
-   game's opening screen (scripts/loading_screen.gd), so it reads as one loading
-   screen: the splash in an upright 360-wide column (black at the sides on a wide
-   window), the game's loading bar just under the credit line, the text above it. */
+   game's loading screen (scripts/loading_screen.gd), so it reads as one loading
+   screen: the splash fills the window (cut at the sides, or at the bottom on a
+   very wide one), the game's loading bar just under the credit line and the
+   text above it. */
 #status { background-color: #000 !important; }
-#status-splash.fullsize--true { left: 50%; right: auto; width: min(100vw, 56.25vh); max-width: none;
-  transform: translateX(-50%); margin: 0; object-fit: cover; }
+#status-splash.fullsize--true { left: 0; right: 0; width: 100%; height: 100%; max-width: none; margin: 0;
+  object-fit: cover; object-position: center top; }
 #status-progress { display: none !important; }
 body.cm-loading #cm-fs { display: none !important; }   /* (it would sit on the bar: back once the game is up) */
-#cm-load { position: absolute; top: 0; bottom: 0; left: 50%; width: min(100vw, 56.25vh);
-  transform: translateX(-50%); pointer-events: none; }
+#cm-load { position: absolute; top: 0; bottom: 0; left: 0; right: 0; pointer-events: none; }
 #cm-load-text { position: absolute; left: 0; right: 0; text-align: center; font-family: at01, monospace;
   color: #fff3dc; line-height: 1; white-space: nowrap; }
 #cm-load-bar { position: absolute; left: 50%; transform: translateX(-50%); background: #75452e;
@@ -144,7 +144,7 @@ body.cm-loading #cm-fs { display: none !important; }   /* (it would sit on the b
 // AND no heartbeat for a few seconds after it (a real crash) does.
 (() => {
   let lastBeat = 0, started = false, shown = "", suspect = 0, lastErr = "";
-  const BUILD = "5d160ed0d7";
+  const BUILD = "a90bf37a97";
   window.cmBeat = () => { lastBeat = Date.now(); started = true; if (shown === "slow" || shown === "dead") hide(); };
   const box = () => {
     let b = document.getElementById("cm-help");
@@ -193,11 +193,12 @@ addEventListener("DOMContentLoaded", () => {
   };
   // the game's screen: "portrait" (sign-in, the Journal hub) or "landscape" (the city)
   let mode = "portrait";
+  // ("free": a tablet or computer outside the city, any way up)
   const lock = () => {
-    try { screen.orientation.lock(mode).catch(() => {}); } catch (e) {}
+    try { if (mode === "free") screen.orientation.unlock(); else screen.orientation.lock(mode).catch(() => {}); } catch (e) {}
   };
   window.cmMode = (m) => {
-    mode = m === "landscape" ? "landscape" : "portrait";
+    mode = m === "landscape" ? "landscape" : (m === "free" ? "free" : "portrait");
     document.body.classList.toggle("cm-wide", mode === "landscape");
     if (document.fullscreenElement || document.webkitFullscreenElement) lock();
   };
@@ -230,22 +231,29 @@ addEventListener("DOMContentLoaded", () => {
   box.innerHTML = "<div id='cm-load-text'>Loading...</div><div id='cm-load-bar'><div id='cm-load-fill'></div></div>";
   status.appendChild(box);
   const text = box.firstChild, bar = box.lastChild, fill = bar.firstChild;
-  // the game's opening screen: 360 px wide, as tall as the window (at least 640).
-  // In the splash the credit line is at 96.1-98% of the height; the bar (200 x 4)
-  // sits at 355/360 of it, the text ends just above the credit line.
-  const img = document.getElementById("status-splash");
+  // The game's own measure: its screen is 640 x 360 or more (360 x 640 or more on a
+  // phone held upright), scaled to fill the window. The splash (1280 x 714) covers
+  // the window from the top; its credit line is at 96.1-98% of its height. The bar
+  // (200 x 4 of the game's px) sits at 355/360 of it and the text ends just above
+  // the credit line; when that line is cut off (a very wide window) both sit at
+  // the bottom instead.
   const fit = () => {
-    const h = status.clientHeight || innerHeight, w = Math.min(status.clientWidth || innerWidth, h * 360 / 640);
-    const s = w / 360, px = Math.max(1, Math.round(s));
-    for (const el of [img, box]) if (el) el.style.width = w + "px";
+    const w = status.clientWidth || innerWidth, h = status.clientHeight || innerHeight;
+    const phone = matchMedia("(pointer: coarse)").matches && Math.min(screen.width, screen.height) < 600;
+    const s = (phone && h > w) ? Math.min(w / 360, h / 640) : Math.min(w / 640, h / 360);
+    const px = Math.max(1, Math.round(s));
+    const imgH = Math.max(h, w * 714 / 1280);
     const bh = Math.max(3, Math.round(4 * s));
+    let barTop = Math.round(imgH * 355 / 360);
+    const size = 16 * Math.max(2, Math.round(s));          // at01 is drawn for 16 px: whole steps stay sharp
+    let textTop = Math.floor(imgH * 0.9608) - size - 3 * px;
+    if (barTop + bh + px > h) { barTop = h - bh - px; textTop = barTop - size - 6 * px; }
     bar.style.width = Math.round(200 * s) + "px";
     bar.style.height = bh + "px";
     bar.style.outlineWidth = px + "px";
-    bar.style.top = Math.round(h * 355 / 360) + "px";
-    const size = 16 * Math.max(2, Math.round(s * 1.6));        // at01 is drawn for 16 px: whole steps stay sharp
+    bar.style.top = barTop + "px";
     text.style.fontSize = size + "px";
-    text.style.top = (Math.floor(h * 0.9608) - size - 3 * px) + "px";
+    text.style.top = textTop + "px";
     const o = px + "px", c = " #1f2d3d";
     text.style.textShadow = ["-" + o + " 0", o + " 0", "0 -" + o, "0 " + o, "-" + o + " -" + o, o + " -" + o,
       "-" + o + " " + o, o + " " + o].map((d) => d + " 0" + c).join(", ");
@@ -255,7 +263,6 @@ addEventListener("DOMContentLoaded", () => {
   document.body.classList.add("cm-loading");
   new MutationObserver(() => { if (!status.isConnected) document.body.classList.remove("cm-loading"); })
     .observe(status.parentNode, { childList: true });
-  if (img) img.addEventListener("load", fit);
   let seen = false;
   const follow = () => {
     const max = parseFloat(prog.getAttribute("max")), val = parseFloat(prog.getAttribute("value"));
@@ -291,7 +298,7 @@ addEventListener("DOMContentLoaded", () => {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"mainPack":"index.5d160ed0d7.pck","fileSizes":{"index.5d160ed0d7.pck":45416940,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"mainPack":"index.a90bf37a97.pck","fileSizes":{"index.a90bf37a97.pck":45431064,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
