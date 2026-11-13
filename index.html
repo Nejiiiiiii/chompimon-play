@@ -117,6 +117,24 @@ body {
   overflow-wrap: anywhere; text-align: left; }
 #cm-help button { font: 16px at01, monospace; color: #fffaf1; background: #ee6b5b; border: 2px solid #9c3a2e;
   border-radius: 6px; padding: 6px 14px; margin-left: 10px; }
+/* The page's own loading screen (while the game downloads): laid out like the
+   game's opening screen (scripts/loading_screen.gd), so it reads as one loading
+   screen: the splash in an upright 360-wide column (black at the sides on a wide
+   window), the game's loading bar just under the credit line, the text above it. */
+#status { background-color: #000 !important; }
+#status-splash.fullsize--true { left: 50%; right: auto; width: min(100vw, 56.25vh); max-width: none;
+  transform: translateX(-50%); margin: 0; object-fit: cover; }
+#status-progress { display: none !important; }
+body.cm-loading #cm-fs { display: none !important; }   /* (it would sit on the bar: back once the game is up) */
+#cm-load { position: absolute; top: 0; bottom: 0; left: 50%; width: min(100vw, 56.25vh);
+  transform: translateX(-50%); pointer-events: none; }
+#cm-load-text { position: absolute; left: 0; right: 0; text-align: center; font-family: at01, monospace;
+  color: #fff3dc; line-height: 1; white-space: nowrap; }
+#cm-load-bar { position: absolute; left: 50%; transform: translateX(-50%); background: #75452e;
+  outline: 1px solid #372015; overflow: hidden; }
+#cm-load-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: #fd9d40;
+  transition: width 0.25s linear; }
+#cm-load-fill::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 50%; background: #ffd955; }
 </style>
 <script>
 // If the game stops or freezes (out of memory on a phone, the graphics reset,
@@ -126,7 +144,7 @@ body {
 // AND no heartbeat for a few seconds after it (a real crash) does.
 (() => {
   let lastBeat = 0, started = false, shown = "", suspect = 0, lastErr = "";
-  const BUILD = "ee50bed917";
+  const BUILD = "5d160ed0d7";
   window.cmBeat = () => { lastBeat = Date.now(); started = true; if (shown === "slow" || shown === "dead") hide(); };
   const box = () => {
     let b = document.getElementById("cm-help");
@@ -202,6 +220,58 @@ addEventListener("DOMContentLoaded", () => {
   document.addEventListener("webkitfullscreenchange", update);
   update();
 });
+// The loading bar while the game downloads (see the styles above). The web
+// export's own page still drives a hidden <progress>; this follows it.
+addEventListener("DOMContentLoaded", () => {
+  const status = document.getElementById("status"), prog = document.getElementById("status-progress");
+  if (!status || !prog) return;
+  const box = document.createElement("div");
+  box.id = "cm-load";
+  box.innerHTML = "<div id='cm-load-text'>Loading...</div><div id='cm-load-bar'><div id='cm-load-fill'></div></div>";
+  status.appendChild(box);
+  const text = box.firstChild, bar = box.lastChild, fill = bar.firstChild;
+  // the game's opening screen: 360 px wide, as tall as the window (at least 640).
+  // In the splash the credit line is at 96.1-98% of the height; the bar (200 x 4)
+  // sits at 355/360 of it, the text ends just above the credit line.
+  const img = document.getElementById("status-splash");
+  const fit = () => {
+    const h = status.clientHeight || innerHeight, w = Math.min(status.clientWidth || innerWidth, h * 360 / 640);
+    const s = w / 360, px = Math.max(1, Math.round(s));
+    for (const el of [img, box]) if (el) el.style.width = w + "px";
+    const bh = Math.max(3, Math.round(4 * s));
+    bar.style.width = Math.round(200 * s) + "px";
+    bar.style.height = bh + "px";
+    bar.style.outlineWidth = px + "px";
+    bar.style.top = Math.round(h * 355 / 360) + "px";
+    const size = 16 * Math.max(2, Math.round(s * 1.6));        // at01 is drawn for 16 px: whole steps stay sharp
+    text.style.fontSize = size + "px";
+    text.style.top = (Math.floor(h * 0.9608) - size - 3 * px) + "px";
+    const o = px + "px", c = " #1f2d3d";
+    text.style.textShadow = ["-" + o + " 0", o + " 0", "0 -" + o, "0 " + o, "-" + o + " -" + o, o + " -" + o,
+      "-" + o + " " + o, o + " " + o].map((d) => d + " 0" + c).join(", ");
+  };
+  fit();
+  addEventListener("resize", fit);
+  document.body.classList.add("cm-loading");
+  new MutationObserver(() => { if (!status.isConnected) document.body.classList.remove("cm-loading"); })
+    .observe(status.parentNode, { childList: true });
+  if (img) img.addEventListener("load", fit);
+  let seen = false;
+  const follow = () => {
+    const max = parseFloat(prog.getAttribute("max")), val = parseFloat(prog.getAttribute("value"));
+    if (max > 0 && val >= 0) {
+      seen = true;
+      const part = Math.min(1, val / max);
+      fill.style.width = (part * 100) + "%";
+      text.textContent = "Loading... " + Math.round(part * 100) + "%";
+    } else if (seen) {                       // downloaded: the game is starting up
+      fill.style.width = "100%";
+      text.textContent = "Starting...";
+    }
+  };
+  new MutationObserver(follow).observe(prog, { attributes: true });
+  follow();
+});
 </script>
 	</head>
 	<body>
@@ -221,7 +291,7 @@ addEventListener("DOMContentLoaded", () => {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"mainPack":"index.ee50bed917.pck","fileSizes":{"index.ee50bed917.pck":45416908,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"mainPack":"index.5d160ed0d7.pck","fileSizes":{"index.5d160ed0d7.pck":45416940,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
