@@ -68,3 +68,4 @@ share-malabartea-epic.html
 share-malabartea-legendary.html
 share-malabartea-shiny.html
 share-malabartea-void.html
+chompimon.apk
