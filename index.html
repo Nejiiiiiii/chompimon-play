@@ -98,7 +98,19 @@ body {
      IN THE CITY only (sign-in and the Journal hub are played upright: the game
      says which with window.cmMode, see scripts/screen_mode.gd).
      at01.ttf is copied next to index.html when the web version is published. -->
-<!-- cm-data {"build":1794564693,"file":"index.f4f80a8c4f.pck","size":46716832,"sha256":"f4f80a8c4ff293bf7c09d5da5ed67b606795fde03e9d13e3fd65d82bf31297ca","min_shell":1} -->
+<!-- cm-data {"build":1794669039,"file":"index.1e8e700603.pck","size":46718144,"sha256":"1e8e7006031384e233f737ff8c9b17acba7e30193ca5a1d388d2e282722eed04","min_shell":1} -->
+<!-- What Facebook, Messenger, X and others show when the game's link is shared
+     (they drop any words an app sends along and build a card from these). -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Chompimon">
+<meta property="og:title" content="Chompimon: Follow your cravings">
+<meta property="og:description" content="Discover delicious drinks, collect unique Chompimon and explore new restaurants. Play for free. Earn food &amp; drinks!">
+<meta property="og:url" content="https://dcvt7xmshbcef.cloudfront.net/">
+<meta property="og:image" content="https://dcvt7xmshbcef.cloudfront.net/index.png">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="714">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="description" content="Discover delicious drinks, collect unique Chompimon and explore new restaurants. Play for free. Earn food &amp; drinks!">
 <style>
 @font-face { font-family: at01; src: url("at01.ttf"); }
 #cm-fs { position: fixed; left: 10px; bottom: 10px; z-index: 10; display: none;
@@ -145,7 +157,7 @@ body.cm-loading #cm-fs { display: none !important; }   /* (it would sit on the b
 // AND no heartbeat for a few seconds after it (a real crash) does.
 (() => {
   let lastBeat = 0, started = false, shown = "", suspect = 0, lastErr = "";
-  const BUILD = "f4f80a8c4f";
+  const BUILD = "1e8e700603";
   window.cmBeat = () => { lastBeat = Date.now(); started = true; if (shown === "slow" || shown === "dead") hide(); };
   const box = () => {
     let b = document.getElementById("cm-help");
@@ -299,7 +311,7 @@ addEventListener("DOMContentLoaded", () => {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"mainPack":"index.f4f80a8c4f.pck","fileSizes":{"index.f4f80a8c4f.pck":46716832,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"mainPack":"index.1e8e700603.pck","fileSizes":{"index.1e8e700603.pck":46718144,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
