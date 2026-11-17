@@ -98,7 +98,7 @@ body {
      IN THE CITY only (sign-in and the Journal hub are played upright: the game
      says which with window.cmMode, see scripts/screen_mode.gd).
      at01.ttf is copied next to index.html when the web version is published. -->
-<!-- cm-data {"build":1794747204,"file":"index.df4adfa8e7.pck","size":59766996,"sha256":"df4adfa8e71360b0770806e357037efbd4998324ae61dc8123a466f4943f8c78","min_shell":1,"app":2} -->
+<!-- cm-data {"build":1794914112,"file":"index.6141a11bc9.pck","size":59768340,"sha256":"6141a11bc9a197aab20205ecdbb84e289f48052b1ffd38cb738471c578887c5f","min_shell":1,"app":2} -->
 <!-- What Facebook, Messenger, X and others show when the game's link is shared
      (they drop any words an app sends along and build a card from these). -->
 <meta property="og:type" content="website">
@@ -157,7 +157,7 @@ body.cm-loading #cm-fs { display: none !important; }   /* (it would sit on the b
 // AND no heartbeat for a few seconds after it (a real crash) does.
 (() => {
   let lastBeat = 0, started = false, shown = "", suspect = 0, lastErr = "";
-  const BUILD = "df4adfa8e7";
+  const BUILD = "6141a11bc9";
   window.cmBeat = () => { lastBeat = Date.now(); started = true; if (shown === "slow" || shown === "dead") hide(); };
   const box = () => {
     let b = document.getElementById("cm-help");
@@ -311,7 +311,7 @@ addEventListener("DOMContentLoaded", () => {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"mainPack":"index.df4adfa8e7.pck","fileSizes":{"index.df4adfa8e7.pck":59766996,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"mainPack":"index.6141a11bc9.pck","fileSizes":{"index.6141a11bc9.pck":59768340,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
