@@ -98,7 +98,7 @@ body {
      IN THE CITY only (sign-in and the Journal hub are played upright: the game
      says which with window.cmMode, see scripts/screen_mode.gd).
      at01.ttf is copied next to index.html when the web version is published. -->
-<!-- cm-data {"build":1795063152,"file":"index.ad6fc8ee1e.pck","size":166944068,"sha256":"ad6fc8ee1e5a77b03f31f6b4f0a40b5728b0c2fe759d293d52827b66279f16b5","min_shell":1,"app":2} -->
+<!-- cm-data {"build":1795068096,"file":"index.fc383a399b.pck","size":166944068,"sha256":"fc383a399b3ac92e3bbf705ae8922bc8d7a321691dd30ed67b1203c20a4aad5a","min_shell":1,"app":2} -->
 <!-- What Facebook, Messenger, X and others show when the game's link is shared
      (they drop any words an app sends along and build a card from these). -->
 <meta property="og:type" content="website">
@@ -157,7 +157,7 @@ body.cm-loading #cm-fs { display: none !important; }   /* (it would sit on the b
 // AND no heartbeat for a few seconds after it (a real crash) does.
 (() => {
   let lastBeat = 0, started = false, shown = "", suspect = 0, lastErr = "";
-  const BUILD = "ad6fc8ee1e";
+  const BUILD = "fc383a399b";
   window.cmBeat = () => { lastBeat = Date.now(); started = true; if (shown === "slow" || shown === "dead") hide(); };
   const box = () => {
     let b = document.getElementById("cm-help");
@@ -192,6 +192,52 @@ body.cm-loading #cm-fs { display: none !important; }   /* (it would sit on the b
     else if (quiet > 25000 && shown === "") show("slow", "Still working... if it stays stuck, reload.");
   }, 2000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) lastBeat = Date.now(); });
+})();
+// The game data is big (over 150 MB). One long download fails for good if the
+// connection drops once ("Failed loading file ..."), so it is fetched in pieces:
+// a piece that fails is asked for again (up to 6 times, waiting a little longer
+// each time) and the download carries on from there.
+(() => {
+  const plain = window.fetch.bind(window);
+  const PIECE = 4 * 1024 * 1024;
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const piece = async (url, from, to) => {
+    let last;
+    for (let i = 0; i < 6; i++) {
+      try {
+        const r = await plain(url, { headers: { Range: "bytes=" + from + "-" + to }, cache: "no-store" });
+        if (r.status === 206) {
+          const b = new Uint8Array(await r.arrayBuffer());
+          if (b.length === to - from + 1) return b;
+          last = new Error("short piece");
+        } else last = new Error("HTTP " + r.status);
+      } catch (e) { last = e; }
+      await wait(800 * (i + 1));
+    }
+    throw last;
+  };
+  window.fetch = (input, init) => {
+    const url = typeof input === "string" ? input : (input && input.url) || "";
+    if (!/\.pck(\?|$)/.test(url) || (init && init.method && init.method !== "GET")) return plain(input, init);
+    return (async () => {
+      let total = 0;
+      try {
+        const h = await plain(url, { headers: { Range: "bytes=0-0" }, cache: "no-store" });
+        const m = /\/(\d+)$/.exec(h.headers.get("content-range") || "");
+        if (h.status === 206 && m) total = parseInt(m[1], 10);
+      } catch (e) {}
+      if (!total) return plain(input, init);              // (no pieces here: the plain way)
+      let at = 0;
+      const body = new ReadableStream({
+        async pull(c) {
+          if (at >= total) { c.close(); return; }
+          const to = Math.min(at + PIECE, total) - 1;
+          try { c.enqueue(await piece(url, at, to)); at = to + 1; } catch (e) { c.error(e); }
+        }
+      });
+      return new Response(body, { status: 200, headers: { "content-length": String(total), "content-type": "application/octet-stream" } });
+    })();
+  };
 })();
 // a password-reset link that landed on the game page: send it to the reset page
 if (/(type=recovery|error_code=)/.test(location.hash)) location.replace("reset.html" + location.hash);
@@ -311,7 +357,7 @@ addEventListener("DOMContentLoaded", () => {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"mainPack":"index.ad6fc8ee1e.pck","fileSizes":{"index.ad6fc8ee1e.pck":166944068,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"mainPack":"index.fc383a399b.pck","fileSizes":{"index.fc383a399b.pck":166944068,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
