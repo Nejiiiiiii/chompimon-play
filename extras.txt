@@ -369,5 +369,4 @@ share-royal-epic.html
 share-royal-legendary.html
 share-royal-shiny.html
 share-royal-void.html
-admin.html
 chompimon.apk
