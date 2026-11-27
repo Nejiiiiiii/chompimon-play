@@ -98,7 +98,7 @@ body {
      IN THE CITY only (sign-in and the Journal hub are played upright: the game
      says which with window.cmMode, see scripts/screen_mode.gd).
      at01.ttf is copied next to index.html when the web version is published. -->
-<!-- cm-data {"build":1795770361,"file":"index.3a71f1490b.pck","size":11068292,"sha256":"3a71f1490bbced466342cc3d218cd0b6c186c07a54c21dd1b6e085a2148bbb52","min_shell":3,"app":4,"arts":[["art.583407ffc1.pck",31114588,"cf9dbb28592274fa2f2a77f8be3f6a59a97015f7aea97cb5dc55e116dc60de6d"],["art.2134dcfc32.pck",24158164,"5a9e63b774b48d5e49d67742e6262b8a23b75622c604a405f5438f0e5fef6f4c"],["art.7bfd0b2168.pck",14882532,"2059530f69eb68a1fe3332aae2392078670d48099f9c6d6ccce01b5b7dba4db1"],["art.c6d0999b21.pck",20286304,"595649478bf566d6b04840c6e5dc69979fb2b085970a398f1118c04d5403e7d2"],["art.454a8c29cc.pck",24789076,"9fe0aa76d4ec0481f792e23a8fe4f9f6be25a97a15e1eae72cf5ed90a0f46304"],["art.414102e8dc.pck",20134424,"4a99bca56701d9c2d6f816c4387022c0222fb9984b18399c76041f1719235ba3"],["art.944dc04e93.pck",16664492,"f4b50820b2365c3904c4e40ca68076dbbd71d69937c9fcd23fa9fd22c9a2605f"],["art.b0baca0b06.pck",22921756,"009c8c3c950a28992c192aedd74529b8d6b8472fe2b634e19a0b912d2c5f32ca"],["art.cf9791182e.pck",22777268,"1ec1e73f645ef83deadc0be2588fb157542a0184dcf25bfbee259636ff71842d"],["art.4efeb6199a.pck",26522016,"779abd3f8fe717a4989389319e6938703815a1aadee2309eee45885087a62479"]]} -->
+<!-- cm-data {"build":1795772086,"file":"index.3fd6249700.pck","size":11107112,"sha256":"3fd624970006ae89e3d09d116ea732ac2d55e6fd4e2d40e19a4d80ec0a6e9ba6","min_shell":3,"app":4,"arts":[["art.4982b6a37f.pck",32098508,"38931a3939845cad502148367928ef1ef25a4b63d2c0013bd176277c83c66ad0"],["art.ca8a7ac065.pck",25653504,"69e92068355433131a6acf3c05df311ea4a59672f91201aa0a686c7620a988bd"],["art.6f5a2cfb1c.pck",17242636,"7f56d52b66d736fcaca237ed9f0b316f8b0376f8f9f4f9e0ec46917c3b9d33b6"],["art.153763e142.pck",23318124,"466424a95527210455e05754fbaa55711c6d137d8d7e4bf1affbb27726aec1f6"],["art.63d9a238be.pck",26033792,"82b504795e5d12750c2232cc246a8d786c8c0fbb9d58270228defde2fb54c143"],["art.4b88afd6a8.pck",21622532,"4298d0cc7b7ce275da16e9907e4e977381700760bfd636f636cf4492e47858ee"],["art.78568dd535.pck",18219892,"4034786074605b2b9e14763efd337a3368fda82dbfed5fe0c157faee4d8c4df7"],["art.1cd707d67b.pck",24271192,"6643fb7c842ca716fc13fa2043ae12630cf75698841bd2b17c16ed57f14fd3a5"],["art.5bbc31a1ab.pck",24132408,"56d2171bd63db4a874f3a35d89fa34d6dcd2b2ce9cee75fe917a1e1e5c0499e5"],["art.08d954a4d3.pck",27472856,"736c2faf8c062199aac9868ee585e6a466d6407cdf9fbff30cc17cc2631a417d"]]} -->
 <!-- What Facebook, Messenger, X and others show when the game's link is shared
      (they drop any words an app sends along and build a card from these). -->
 <meta property="og:type" content="website">
@@ -157,7 +157,7 @@ body.cm-loading #cm-fs { display: none !important; }   /* (it would sit on the b
 // AND no heartbeat for a few seconds after it (a real crash) does.
 (() => {
   let lastBeat = 0, started = false, shown = "", suspect = 0, lastErr = "";
-  const BUILD = "3a71f1490b";
+  const BUILD = "3fd6249700";
   window.cmBeat = () => { lastBeat = Date.now(); started = true; if (shown === "slow" || shown === "dead") hide(); };
   const box = () => {
     let b = document.getElementById("cm-help");
@@ -357,7 +357,7 @@ addEventListener("DOMContentLoaded", () => {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"mainPack":"index.3a71f1490b.pck","fileSizes":{"index.3a71f1490b.pck":11068292,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"mainPack":"index.3fd6249700.pck","fileSizes":{"index.3fd6249700.pck":11107112,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
